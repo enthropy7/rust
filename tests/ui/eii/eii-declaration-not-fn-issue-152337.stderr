@@ -9,18 +9,28 @@ LL | fn A() {}
    |
    = note: `A` must be defined only once in the value namespace of this module
 
-error: externally implementable item declaration must be a function
-  --> $DIR/eii-declaration-not-fn-issue-152337.rs:8:1
+error: externally implementable items must refer to a function
+  --> $DIR/eii-declaration-not-fn-issue-152337.rs:8:4
    |
-LL | const A: () = ();
-   | ----------- `A` is a constant, not a function
-LL | #[eii]
-   | ------ required by this attribute
 LL | fn A() {}
-   | ^^^^^^
-   |
-   = help: externally implementable items only apply to function declarations
+   |    ^
 
-error: aborting due to 2 previous errors
+error: externally implementable items must refer to a function
+  --> $DIR/eii-declaration-not-fn-issue-152337.rs:8:4
+   |
+LL | fn A() {}
+   |    ^
+   |
+   = note: duplicate diagnostic emitted due to `-Z deduplicate-diagnostics=no`
+
+error: externally implementable items must refer to a function
+  --> $DIR/eii-declaration-not-fn-issue-152337.rs:8:4
+   |
+LL | fn A() {}
+   |    ^
+   |
+   = note: duplicate diagnostic emitted due to `-Z deduplicate-diagnostics=no`
+
+error: aborting due to 4 previous errors
 
 For more information about this error, try `rustc --explain E0428`.

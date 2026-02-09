@@ -3,7 +3,7 @@ use rustc_ast::visit::AssocCtxt;
 use rustc_ast::*;
 use rustc_errors::{E0570, ErrorGuaranteed, struct_span_code_err};
 use rustc_hir::attrs::{AttributeKind, EiiImplResolution};
-use rustc_hir::def::{DefKind, PerNS, Res};
+use rustc_hir::def::{CtorKind, DefKind, PerNS, Res};
 use rustc_hir::def_id::{CRATE_DEF_ID, LocalDefId};
 use rustc_hir::{
     self as hir, HirId, ImplItemImplKind, LifetimeSource, PredicateOrigin, Target, find_attr,
@@ -591,7 +591,15 @@ impl<'hir> LoweringContext<'_, 'hir> {
 
     fn lower_path_simple_eii(&mut self, id: NodeId, path: &Path) -> Option<DefId> {
         let res = self.resolver.get_partial_res(id)?;
-        let Some(did) = res.expect_full_res().opt_def_id() else {
+        let full = res.expect_full_res();
+
+        let Res::Def(DefKind::Fn | DefKind::AssocFn | DefKind::Ctor(_, CtorKind::Fn), did) = full
+        else {
+            // Resolution succeeded but did not point at a function-like item.
+            // Treat this as an EII-specific error instead of letting it turn
+            // into a later ICE when we try to compute a function signature.
+            self.dcx()
+                .span_err(path.span, "externally implementable items must refer to a function");
             self.dcx().span_delayed_bug(path.span, "should have errored in resolve");
             return None;
         };

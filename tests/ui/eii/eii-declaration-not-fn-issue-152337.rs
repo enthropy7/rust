@@ -6,6 +6,8 @@
 const A: () = ();
 #[eii]
 fn A() {} //~ ERROR the name `A` is defined multiple times
-//~^ ERROR externally implementable item declaration must be a function
+//~^ ERROR externally implementable items must refer to a function
+//~| ERROR externally implementable items must refer to a function
+//~| ERROR externally implementable items must refer to a function
 
 fn main() {}
